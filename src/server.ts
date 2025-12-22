@@ -20,7 +20,7 @@ app.get(
 app.listen(
     PORT,
     ()=> {
-        console.log(`Server started on port: ${PORT}`);
+        console.log(`Server has started on port: ${PORT}`);
     }
 );
 
