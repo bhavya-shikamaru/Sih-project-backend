@@ -225,6 +225,158 @@ const UserSchema = new Schema({
   }
 }, { timestamps: true });
 ```
+### 11.1 Data Modeling Overview & Core Collections
+
+UmeedAI uses a **document-oriented data model** designed around three principles:
+
+- **Clear separation between system users and students**
+- **Time-series storage for academic and attendance data**
+- **Historical and explainable risk assessment records**
+
+Collections are designed to reflect **long-lived domain entities** and **auditable system behavior**, rather than mirroring UI screens or CSV formats.
+
+---
+
+### 11.2 Core Collections
+
+#### `users`
+Represents **system operators** such as faculty, mentors, counselors, and administrators.
+
+**Purpose**
+- Authentication and authorization
+- Role-based access control
+- Accountability and audit trails
+
+**Key Fields**
+- name
+- email (unique)
+- role (`admin`, `mentor`, `faculty`)
+- department
+- isActive
+- lastLogin
+- createdAt, updatedAt
+
+---
+
+#### `students`
+Represents **students being monitored and supported** by the system.
+
+**Purpose**
+- Central entity for all academic and risk-related data
+- Persistent identity across semesters and uploads
+
+**Key Fields**
+- enrollmentId / rollNumber (unique)
+- name
+- department
+- semester / year
+- batch
+- mentorId (ref → `users`)
+- status (`active`, `at-risk`, `dropped`)
+- createdAt, updatedAt
+
+---
+
+#### `attendanceRecords`
+Stores **attendance data as time-series records**, uploaded periodically via CSV.
+
+**Purpose**
+- Track attendance trends over time
+- Enable historical analysis and comparisons
+
+**Key Fields**
+- studentId (ref → `students`)
+- subjectCode
+- attendancePercentage
+- totalClasses
+- attendedClasses
+- sourceUploadId (ref → `dataUploads`)
+- recordedAt
+
+---
+
+#### `academicRecords`
+Stores **marks, test scores, and attempt data** for students.
+
+**Purpose**
+- Capture performance trends
+- Support risk scoring logic
+
+**Key Fields**
+- studentId (ref → `students`)
+- subjectCode
+- assessmentType (`quiz`, `midsem`, `endsem`)
+- score
+- maxScore
+- attemptNumber
+- sourceUploadId (ref → `dataUploads`)
+- recordedAt
+
+---
+
+#### `riskAssessments`
+Stores **calculated risk scores and explanations** for students.
+
+**Purpose**
+- Maintain historical risk states
+- Ensure explainability and auditability of AI decisions
+
+**Key Fields**
+- studentId (ref → `students`)
+- riskScore (0–100)
+- riskLevel (`low`, `medium`, `high`)
+- factorsTriggered (array of strings)
+- modelVersion
+- calculatedAt
+
+---
+
+#### `dataUploads`
+Tracks **CSV uploads and ingestion events**.
+
+**Purpose**
+- Trace data lineage
+- Debug incorrect or disputed risk assessments
+- Build trust with faculty and administrators
+
+**Key Fields**
+- uploadedBy (ref → `users`)
+- uploadType (`attendance`, `marks`)
+- fileName
+- status (`processed`, `failed`)
+- errorSummary
+- uploadedAt
+
+---
+
+### 11.3 Optional Supporting Collections
+
+These collections enhance observability and communication but are not required for MVP.
+
+#### `notifications`
+- recipientId (ref → `users`)
+- type (`weekly-summary`, `risk-escalation`)
+- content
+- sentAt
+- readAt
+
+#### `auditLogs`
+- action (e.g. `UPLOAD_CSV`, `VIEW_STUDENT`)
+- performedBy (ref → `users`)
+- targetStudentId (optional)
+- timestamp
+
+---
+
+### 11.4 Design Notes
+
+- **Students are not system users**; they are subjects of analysis.
+- Time-series data (attendance, academics, risk scores) is stored separately to prevent document bloat.
+- All AI-related outputs are **persisted and explainable**, not recomputed silently.
+- Schema normalization is intentionally minimal to favor clarity and performance.
+
+
+
 ## 12. Development Workflow
 ### Order of Development
 1. Project initialization
