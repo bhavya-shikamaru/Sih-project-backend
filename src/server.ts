@@ -111,7 +111,6 @@ app.listen(PORT, () => {
 ║  Base URL:  http://localhost:${String(PORT).padEnd(29)}║
 ╠══════════════════════════════════════════════════════════════╣
 ║  Endpoints:                                                  ║
-║  • GET  /api/health            - Health check                ║
 ║  • CRUD /api/users             - System users                ║
 ║  • CRUD /api/students          - Student records             ║
 ║  • CRUD /api/attendance        - Attendance data             ║
