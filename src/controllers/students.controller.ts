@@ -68,21 +68,7 @@ export function getAllStudents(req: Request, res: Response): void {
  */
 export function getStudentById(req: Request, res: Response): void {
     const { id } = req.params;
-    const student = import { StudentModel } from "../models/students/student.schema";
-
-    export async function getStudentById(req: Request, res: Response) {
-        const { id } = req.params;
-
-        const student = await StudentModel.findById(id);
-
-        if (!student) {
-            sendError(res, "Student not found", 404);
-            return;
-        }
-
-        sendSuccess(res, student);
-    }
-
+    const student = studentsStore.find(s => s._id === id);
 
     if (!student) {
         sendError(res, "Student not found", 404);

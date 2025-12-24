@@ -15,12 +15,17 @@
 
 import express, { Request, Response, NextFunction } from "express";
 import apiRouter from "./routes";
+import { Router } from "express";
 
 /**
  * Express application instance.
  */
 const app = express();
+import { getRiskByStudent } from "controllers/risk.controller";
+const router = Router();
+router.get("/:studentId", getRiskByStudent);
 
+export default router;
 /**
  * Server port from environment variable or default.
  */
